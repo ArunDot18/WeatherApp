@@ -1,92 +1,121 @@
-import React, { useEffect, useState } from 'react'
-import useWeatherInfo from '../Hooks/useWeatherInfo'
+import { useEffect, useState } from "react"
+import useWeatherInfo from "../Hooks/useWeatherInfo"
+import search_icon from '../Assets/search.png'
+import clear_icon from '../Assets/clear.png'
+import cloud_icon from '../Assets/cloud.png'
+import drizzle_icon from '../Assets/drizzle.png'
+import humidity_icon from '../Assets/humidity.png'
+import rain_icon from '../Assets/rain.png'
+import snow_icon from '../Assets/snow.png'
+import wind_icon from '../Assets/wind.png'
 
 function WeatherData() {
 
-    const [cityInput, setCityInput] = useState("")
-    const [city, setCity] = useState("")
-    const [location, setLocation] = useState(null)
-    const [isGeolocationFetched, setIsGeolocationFetched] = useState(false)
+  const [cityInput, setCityInput] = useState("")
+  const [city, setCity] = useState("london")
+  const [showWeather, setShowWeather] = useState(null)
+  const [error, setError] = useState(false)
 
-    const weatherInfo = useWeatherInfo(location ? location : {city})
+  const weatherInfo = useWeatherInfo(city)
 
-    useEffect(() => {
-        if(navigator.geolocation && !location && !isGeolocationFetched){
-            navigator.geolocation.getCurrentPosition(
-                (position) => {
-                    const {latitude, longitude} = position.coords
-                    setLocation({latitude, longitude})
-                    setIsGeolocationFetched(true)
-                },
-                (e) => {
-                    console.log(e)
-                    setIsGeolocationFetched(true)
-                }
-            )
-        }
-    }, [location, isGeolocationFetched])
-
-    const cityChange = () => {
-        setCity(cityInput)
-        setLocation(null)
-        setIsGeolocationFetched(true)
+  const allIcons = {
+    "01d": clear_icon,
+    "01n": clear_icon,   
+    "02d": cloud_icon,
+    "02n": cloud_icon,   
+    "03d": cloud_icon,
+    "03n": cloud_icon,   
+    "04d": drizzle_icon,
+    "04n": drizzle_icon,   
+    "09d": rain_icon,
+    "09n": rain_icon,   
+    "10d": rain_icon,
+    "10n": rain_icon,   
+    "13d": snow_icon,
+    "13n": snow_icon,   
     }
 
-    return (
-        <div className="w-full min-h-screen flex justify-center items-center bg-gradient-to-br from-blue-600 to-indigo-800">
-          <div className='w-full flex justify-center items-center'>
-            <div className="w-full max-w-md mx-auto rounded-3xl p-6 bg-white/30 border border-gray-200 shadow-2xl backdrop-blur-lg">
-                <h1 className="text-4xl font-bold py-4 text-center text-gray-100 drop-shadow-lg tracking-wide">
-                    Weather App
-                </h1>
-  
-                    <div className="flex space-x-2 mb-6">
+    useEffect(() => {
+        if(weatherInfo && weatherInfo.main && weatherInfo.weather && weatherInfo.weather[0]){
+            
+            const icon = allIcons[weatherInfo.weather[0].icon] || clear_icon;
+
+            setShowWeather({
+                temperature: Math.floor(weatherInfo.main.temp),
+                humidity: weatherInfo.main.humidity,
+                wind: weatherInfo.wind.speed,
+                cityName: weatherInfo.name,
+                countryName: weatherInfo.sys.country,
+                icon: icon,
+            })
+            setError(null)
+        }
+        else{
+            setShowWeather(null)
+            setError("No weather data found")
+        }
+    }, [weatherInfo])
+    
+
+  return (
+    <>
+            <div className='app'>
+                <div className='weather'>
+                    <div className='search-bar'>
                         <input 
                             type="text" 
-                            className="w-full h-12 rounded-full pl-5 text-lg text-gray-800 placeholder-gray-500 bg-white focus:ring-2 focus:ring-blue-400 border-none shadow-md transition-all"
-                            placeholder='Enter city name'
+                            placeholder='search'
                             value={cityInput}
                             onChange={(e) => setCityInput(e.target.value)}
                             onKeyDown={(e) => {
                                 if(e.key === "Enter"){
-                                    cityChange()
+                                    setCity(cityInput.trim())
                                 }
-                            }}
+                            }} 
                         />
-              
-                            <button 
-                            type='submit' 
-                            className="h-12 w-14 rounded-full flex items-center justify-center bg-blue-600 text-white font-medium shadow-lg hover:bg-blue-700 focus:ring-2 focus:ring-blue-300 transition duration-150 ease-in-out"
-                            onClick={(e) => cityChange}
-                            >
-                            Go !
-                        </button>
+                        <img 
+                            src={search_icon} 
+                            alt="Search Button"
+                            onClick={() => setCity(cityInput.trim())}     
+                        />
                     </div>
-  
-                    <div className="text-center space-y-2">
-                        {weatherInfo === null ? (
-                            <p className="text-center text-white">Loading...</p>
-                            ): weatherInfo.main ? (
-                                <div className="space-y-2">
-                                    <p className="text-5xl font-extrabold text-white drop-shadow-md">
-                                        {weatherInfo.main.temp}°C
-                                    </p>
-                                    <p className="text-2xl text-gray-200 font-light">Feels like: {weatherInfo.main.feels_like}°C</p>
-                                    <p className="text-lg text-gray-300">Humidity: {weatherInfo.main.humidity}%</p>
-                                    <p className="text-lg text-gray-300">Wind: {weatherInfo.wind.speed} km/h</p>
-                                    <p className="text-lg text-gray-400 italic">Description: {weatherInfo.weather[0].description}</p>
-                                    <p className="text-xl text-gray-200 font-semibold">{weatherInfo.name}, {weatherInfo.sys.country}</p>
-                                </div> 
-                            ) : (
-                                    <p className="text-center text-white">No data available</p>
-                                )
-                        }
-                    </div>
+
+                    { error ? (
+                    <p className='error'>{error}</p>
+                    ): showWeather ? (
+                        <>
+                        <img src={showWeather.icon} alt="" className='weather-icon' />
+                        <p className='temperature'>
+                            {Math.floor(showWeather.temperature)}°C
+                        </p>
+                        <p className='location'>
+                            {showWeather.cityName}, {showWeather.countryName}
+                        </p>
+                        <div className='weather-data'> 
+                            <div className='col'>
+                                <img src={humidity_icon} alt="" />
+                                <div >
+                                    <p> {showWeather.humidity}%</p>
+                                    <span>Humidity</span>
+                                </div>
+                            </div>
+                            <div className='col'>
+                                <img src={wind_icon} alt="" />
+                                <div >
+                                    <p>{showWeather.wind} Km/h</p>
+                                    <span>Wind</span>
+                                </div>
+                            </div>
+                        </div>
+                    </>
+                    ) : (
+                        <p className='error'>No data available</p>
+                    )}
+
                 </div>
             </div>
-        </div>
-    )
+    </>
+  )
 }
 
 export default WeatherData
-
