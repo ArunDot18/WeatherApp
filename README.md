@@ -18,5 +18,3 @@ Cloud Caster is a dynamic and user-friendly weather application built with React
 - **React.js**: Frontend framework for building the UI.
 - **OpenWeatherMap API**: For fetching real-time weather data.
 - **Vercel**: For seamless deployment.
-
----
