@@ -51,6 +51,7 @@ body.dark-mode {
     color: var(--text-color);
     background: #ebfffc;
     font-size: 18px;
+    color: #000
 }
 
 .search-bar img{
