@@ -16,7 +16,7 @@ function WeatherData() {
   const [showWeather, setShowWeather] = useState(null)
   const [error, setError] = useState(false)
 
-  const weatherInfo = useWeatherInfo(city)
+  const weatherInfo = useWeatherInfo(city);
 
   const allIcons = {
     "01d": clear_icon,
@@ -55,7 +55,6 @@ function WeatherData() {
             setError("No weather data found")
         }
     }, [weatherInfo])
-    
 
   return (
     <>
@@ -80,7 +79,9 @@ function WeatherData() {
                         />
                     </div>
 
-                    { error ? (
+                    {  weatherInfo === null ? (
+                    <p className='error'>Loading...</p>
+                    ) : error ? (
                     <p className='error'>{error}</p>
                     ): showWeather ? (
                         <>
