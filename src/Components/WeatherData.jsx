@@ -8,6 +8,8 @@ import humidity_icon from '../Assets/humidity.png'
 import rain_icon from '../Assets/rain.png'
 import snow_icon from '../Assets/snow.png'
 import wind_icon from '../Assets/wind.png'
+import sun_icon from '../Assets/sun.png'
+import moon_icon from '../Assets/moon.png'
 
 function WeatherData() {
 
@@ -15,8 +17,14 @@ function WeatherData() {
   const [city, setCity] = useState("london")
   const [showWeather, setShowWeather] = useState(null)
   const [error, setError] = useState(false)
+  const [isDarkMode, setIsDarkMode] = useState(false);
 
   const weatherInfo = useWeatherInfo(city);
+
+  const toggleDarkMode = () => {
+    setIsDarkMode(!isDarkMode);
+    document.body.classList.toggle("dark-mode", !isDarkMode); // Add/remove dark mode class
+  };
 
   const allIcons = {
     "01d": clear_icon,
@@ -58,8 +66,16 @@ function WeatherData() {
 
   return (
     <>
-            <div className='app'>
+            <div className={`app ${isDarkMode ? "dark" : "light"}`}>
                 <div className='weather'>
+                    <div className="theme-switch">
+                        <img
+                            src={isDarkMode ? sun_icon : moon_icon}
+                            alt="Theme Toggle"
+                            onClick={toggleDarkMode}
+                            className="theme-icon"
+                        />
+                    </div>
                     <div className='search-bar'>
                         <input 
                             type="text" 
